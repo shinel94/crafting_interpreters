@@ -1,9 +1,13 @@
 package lox;
 
+import lox.Expr.Assign;
 import lox.Expr.Binary;
 import lox.Expr.Grouping;
 import lox.Expr.Literal;
+import lox.Expr.Logical;
 import lox.Expr.Unary;
+import lox.Expr.Variable;
+import lox.Expr.Call;
 
 public class AstPrinter implements Expr.Visitor<String> {
     String print(Expr expr) {
@@ -11,8 +15,20 @@ public class AstPrinter implements Expr.Visitor<String> {
     }
 
     @Override
+    public String visitAssignExpr(Assign assign) {
+        // TODO : variable expression 구현 필요
+        return "";
+    }
+
+    @Override
     public String visitBinaryExpr(Binary expr) {
         return parenthesize(expr.operator.lexeme, expr.left, expr.right);
+    }
+
+    @Override
+    public String visitCallExpr(Call expr) {
+        // TODO : variable expression 구현 필요
+        return "";
     }
 
     @Override
@@ -28,8 +44,20 @@ public class AstPrinter implements Expr.Visitor<String> {
     }
 
     @Override
+    public String visitLogicalExpr(Logical logical) {
+        // TODO : variable expression 구현 필요
+        return "";
+    }
+
+    @Override
     public String visitUnaryExpr(Unary expr) {
         return parenthesize(expr.operator.lexeme, expr.right);
+    }
+
+    @Override
+    public String visitVariableExpr(Variable variable) {
+        // TODO : variable expression 구현 필요
+        return "";
     }
 
     private String parenthesize(String name, Expr... exprs) {
