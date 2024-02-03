@@ -8,12 +8,16 @@ import java.util.Stack;
 import lox.Expr.Assign;
 import lox.Expr.Binary;
 import lox.Expr.Call;
+import lox.Expr.Get;
 import lox.Expr.Grouping;
 import lox.Expr.Literal;
 import lox.Expr.Logical;
+import lox.Expr.Set;
+import lox.Expr.This;
 import lox.Expr.Unary;
 import lox.Expr.Variable;
 import lox.Stmt.Block;
+import lox.Stmt.Class;
 import lox.Stmt.Expression;
 import lox.Stmt.Function;
 import lox.Stmt.If;
@@ -26,6 +30,7 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     private final Interpreter interpreter;
     private final Stack<Map<String, Boolean>> scopes = new Stack<>();
     private FunctionType currentFunction = FunctionType.NONE;
+    private ClassType currentClass = ClassType.NONE;
 
     Resolver(Interpreter interpreter) {
         this.interpreter = interpreter;
@@ -33,7 +38,14 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
 
     private enum FunctionType {
         NONE,
-        FUNCTION
+        FUNCTION,
+        INITIALIZER,
+        METHOD
+    }
+
+    private enum ClassType {
+        NONE,
+        CLASS
     }
 
     @Override
@@ -41,6 +53,32 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
         beginScope();
         resolve(stmt.statements);
         endScope();
+        return null;
+    }
+
+    @Override
+    public Void visitClassStmt(Class stmt) {
+        ClassType enclosingClass = currentClass;
+        currentClass = ClassType.CLASS;
+
+        declare(stmt.name);
+        define(stmt.name);
+
+        beginScope();
+        scopes.peek().put("this", true);
+
+        for (Stmt.Function method : stmt.methods) {
+            FunctionType declaration = FunctionType.METHOD;
+            if (method.name.lexeme.equals("init")) {
+                declaration = FunctionType.INITIALIZER;
+            }
+            resolveFunction(method, declaration);
+        }
+
+        endScope();
+
+        currentClass = enclosingClass;
+
         return null;
     }
 
@@ -81,6 +119,9 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
         }
 
         if (stmt.value != null) {
+            if (currentFunction == FunctionType.INITIALIZER) {
+                Lox.error(stmt.keyword, "Can't return a value from an initializer.");
+            }
             resolve(stmt.value);
         }
         return null;
@@ -128,6 +169,12 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     }
 
     @Override
+    public Void visitGetExpr(Get expr) {
+        resolve(expr.object);
+        return null;
+    }
+
+    @Override
     public Void visitGroupingExpr(Grouping expr) {
         resolve(expr.expression);
         return null;
@@ -142,6 +189,22 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     public Void visitLogicalExpr(Logical expr) {
         resolve(expr.left);
         resolve(expr.right);
+        return null;
+    }
+
+    @Override
+    public Void visitSetExpr(Set expr) {
+        resolve(expr.value);
+        resolve(expr.object);
+        return null;
+    }
+
+    @Override
+    public Void visitThisExpr(This expr) {
+        if (currentClass == ClassType.NONE) {
+            Lox.error(expr.keyword, "Can't user 'this' outside of class.");
+        }
+        resolveLocal(expr, expr.keyword);
         return null;
     }
 

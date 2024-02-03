@@ -5,9 +5,12 @@ import lox.Expr.Binary;
 import lox.Expr.Grouping;
 import lox.Expr.Literal;
 import lox.Expr.Logical;
+import lox.Expr.Set;
+import lox.Expr.This;
 import lox.Expr.Unary;
 import lox.Expr.Variable;
 import lox.Expr.Call;
+import lox.Expr.Get;
 
 public class AstPrinter implements Expr.Visitor<String> {
     String print(Expr expr) {
@@ -32,6 +35,12 @@ public class AstPrinter implements Expr.Visitor<String> {
     }
 
     @Override
+    public String visitGetExpr(Get expr) {
+        // TODO Auto-generated method stub
+        return "";
+    }
+
+    @Override
     public String visitGroupingExpr(Grouping expr) {
         return parenthesize("group", expr.expression);
     }
@@ -47,6 +56,18 @@ public class AstPrinter implements Expr.Visitor<String> {
     public String visitLogicalExpr(Logical logical) {
         // TODO : variable expression 구현 필요
         return "";
+    }
+
+    @Override
+    public String visitSetExpr(Set expr) {
+        // TODO Auto-generated method stub
+        return "";
+    }
+
+    @Override
+    public String visitThisExpr(This expr) {
+        // TODO Auto-generated method stub
+        return null;
     }
 
     @Override
