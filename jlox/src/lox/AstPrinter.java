@@ -6,6 +6,7 @@ import lox.Expr.Grouping;
 import lox.Expr.Literal;
 import lox.Expr.Logical;
 import lox.Expr.Set;
+import lox.Expr.Super;
 import lox.Expr.This;
 import lox.Expr.Unary;
 import lox.Expr.Variable;
@@ -60,6 +61,12 @@ public class AstPrinter implements Expr.Visitor<String> {
 
     @Override
     public String visitSetExpr(Set expr) {
+        // TODO Auto-generated method stub
+        return "";
+    }
+
+    @Override
+    public String visitSuperExpr(Super expr) {
         // TODO Auto-generated method stub
         return "";
     }
