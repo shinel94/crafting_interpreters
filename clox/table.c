@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -30,7 +31,7 @@ static Entry *findEntry(Entry *entries, int capacity, ObjString *key)
         Entry *entry = &entries[index];
         if (entry->key == NULL)
         {
-            if (IS_NUL(entry->value))
+            if (IS_NIL(entry->value))
             {
                 return tombstone != NULL ? tombstone : entry;
             }
@@ -68,8 +69,6 @@ static void adjustCapacity(Table *table, int capacity)
         entries[i].key = NULL;
         entries[i].value = NIL_VAL;
     }
-    table->entries = entries;
-    table->capacity = capacity;
 
     table->count = 0;
     for (int i = 0; i < table->capacity; i++)
@@ -86,6 +85,7 @@ static void adjustCapacity(Table *table, int capacity)
 
     FREE_ARRAY(Entry, table->entries, table->capacity);
     table->entries = entries;
+    table->capacity = capacity;
 }
 
 bool tableSet(Table *table, ObjString *key, Value value)
