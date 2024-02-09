@@ -3,6 +3,8 @@
 
 #include "common.h"
 #include "memory.h"
+#include "object.h"
+#include "value.h"
 
 #define ALLOCATE(type, count) (type *)reallocate(NULL, 0, sizeof(type) * count)
 
